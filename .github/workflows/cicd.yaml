@@ -1,0 +1,35 @@
+name: Build and Push Image to Aliyun
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Login to Aliyun ACR
+      uses: aliyun/acr-login@v1
+      with:
+        login-server: '你的阿里云镜像仓库地址前缀（例如：crpi-xxxx.cn-shanghai.personal.cr.aliyuncs.com）'
+        username: ${{ secrets.ALIYUN_USERNAME }}
+        password: ${{ secrets.ALIYUN_PASSWORD }}
+
+    - name: Build and Push Image
+      run: |
+        # 这里的地址换成你阿里云仓库的具体全路径
+        IMAGE_NAME="你的阿里云镜像仓库全路径:v-${{ github.sha }}"
+        docker build -t $IMAGE_NAME .
+        docker push $IMAGE_NAME
+```
+
+### 💡 如何测试是否连接成功？
+1. 修改完 `.github/workflows/cicd.yaml` 后，执行：
+   ```bash
+   git add .
+   git commit -m "Add GitHub Actions CI/CD"
+   git push
